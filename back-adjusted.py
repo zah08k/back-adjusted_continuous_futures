@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import os.path
 
 class Backadj:
-    def __init__(self, directory, code, start):
+    def __init__(self, directory, code, start, xdays):
         self.file = open("C:/Users/Kubrat/Desktop/Python/" + directory + "/" + code + ".txt", "r")
         self.content = self.file.read()
         self.symbols = self.content.split(",")
 
         self.start = start
+        self.xdays = xdays # days before the last trading day of the contract, where the rollover occures
 
     def timeseries(self):
         loop_1 = []
@@ -33,9 +34,9 @@ class Backadj:
                     update.low = update.low + adj_value
                     update.close = update.close + adj_value
 
-                    last_price = df.close.iloc[-20]
-                    last_date = df.index[-20]
-                    df = df[:-20]
+                    last_price = df.close.iloc[-self.xdays]
+                    last_date = df.index[-self.xdays]
+                    df = df[:-self.xdays]
 
                     del loop_1[:]
                     loop_1.append(update)
@@ -43,9 +44,9 @@ class Backadj:
 
 
                 elif observed == 0:
-                    last_price = df.close.iloc[-20]
-                    last_date = df.index[-20]
-                    df = df[:-20]
+                    last_price = df.close.iloc[-self.xdays]
+                    last_date = df.index[-self.xdays]
+                    df = df[:-self.xdays]
                     observed = 1
                     loop_1.append(df)
 
@@ -71,32 +72,9 @@ class Backadj:
 
         return data
 
-directory = 'ebm'
-code = 'ebm'
+directory = 'zw'
+code = 'zw'
 start = 110
 
 backadj = Backadj(directory, code, start)
 df = backadj.timeseries()
-
-ranges = df.high - df.low
-z_two = ranges.std()
-print(z_two)
-
-plt.figure(figsize=(10,6))
-
-plot1, = plt.plot(ranges[-100:])
-
-plt.grid()
-plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
